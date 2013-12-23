@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Starter Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Add custom CSS here -->
+    <link href="css/simple-sidebar.css" rel="stylesheet">
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <div id="wrapper">
+
+      <!-- Sidebar -->
+      <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+          <li class="sidebar-brand"><a href="#">IRC Logs</a></li>
+        </ul>
+      </div>
+
+      <!-- Page content -->
+      <div id="page-content-wrapper">
+        <!-- Keep all page content within the page-content inset div! -->
+        <div class="page-content inset">
+          <div class="row" id="messages" style="margin-top: -20px; margin-left: -20px">
+        </div>
+      </div>
+
+      <div id="pagination-bar">
+        <button class="btn btn-info">Previous</button>
+        <button class="btn btn-info">Next</button>
+      </div>
+
+      <style>
+      #pagination-bar {
+        position: fixed;
+        bottom: 0;
+        height: 40px;
+        width: 100%;
+        background: #000;
+      }
+
+      .btn-info:nth-child(2) {
+        position: fixed;
+        bottom: 2px;
+        right: 10px;
+        z-index: 100000000;
+      }
+
+      .btn-info:nth-child(1) {
+        position: fixed;
+        bottom: 2px;
+        right: 70px;
+        z-index: 100000000;
+      }
+
+      #messages li:nth-child(even) {
+        background: #ddd;
+      }
+
+      #messages {
+        list-style-type: none;
+      }
+
+      li {
+        padding: 5px;
+      }
+
+      .time {
+        font-weight: bold;
+      }
+
+      .nick {
+        font-weight: bold;
+        margin-left: 10px;
+      }
+
+      .message {
+        margin-left: 40px;
+      }
+      </style>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="js/bootstrap.js"></script>
+
+
+    <!-- Custom JavaScript for the Menu Toggle -->
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("active");
+    });
+
+    $.get("/channels", function (data) {
+      var channels = $.parseJSON(data);
+
+      for (var i = 0; i < channels.length; i++) {
+          $(".sidebar-nav").append("<li><a onclick=\'viewLogs(\"" + channels[i].substr(1) + "\")\'>" + channels[i] + "</a></li>");
+
+          if (i == 0) {
+            viewLogs(channels[i].substr(1));
+          }
+      }
+    });
+
+    function timeConverter(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp*1000);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var sec = a.getSeconds();
+
+        var time = month+' '+date+' '+year+' '+hour+':'+min+':'+sec ;
+
+        return time;
+     }
+
+    function viewLogs(channel) {
+      $.get("/logs/" + channel, function (data) {
+          $("#messages").html("");
+          var logs = $.parseJSON(data);
+
+          for (var i = 0; i < logs.length; i++) {
+            $("#messages").append("<li><span class=\"time\">[" + timeConverter(logs[i].time) + "]</span><span class=\"nick\">" + logs[i].user + ":</span><span class=\"message\">" + logs[i].data + "</span></li>");
+          }
+      });
+    }
+    </script>
+  </body>
+</html>

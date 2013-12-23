@@ -7,7 +7,9 @@
 var irc        = require("irc"),
     mysql      = require("mysql"),
     colors     = require("colors"),
-    f          = require("./inc/functions.js");
+    f          = require("./inc/functions.js"),
+    express    = require("express"),
+    app        = express();
 
 // Create the MySQL connection
 var connection = mysql.createConnection({
@@ -20,11 +22,48 @@ var connection = mysql.createConnection({
 // IRC server configuration
 var server        = "irc.freenode.net",
     port          = 6667,
+    webapp        = 1,
+    webapp_port   = 80,
     nick          = "Asterix" + Math.floor((Math.random() * 1000) + 1), // Random nickname so there aren't any nick conflicts
     userName      = "asterix",
     realName      = "Asterix IRC Bot - Find me on GitHub"
     authed_admins = [],
     logging       = 1; // Change this to 0 to stop logging all messages to the MySQL database
+
+/**
+ * IRC Logs Web Service
+ */
+if (webapp == 1) {
+  app.set("views", __dirname + "/web");
+  app.engine("html", require("ejs").renderFile);
+  app.use("/css", express.static(__dirname + "/web/css"));
+  app.use("/js", express.static(__dirname + "/web/js"));
+
+  app.get("/", function (req, res) {
+    res.render("logs.html");
+  });
+
+  app.get("/logs/:channel", function (req, res) {
+    connection.query("SELECT * FROM `logs` WHERE `channel` = " + connection.escape("#" + req.params.channel), function (err, rows, fields) {
+      res.send(JSON.stringify(rows));
+    });
+  });
+
+  app.get("/channels", function (req, res) {
+    connection.query("SELECT DISTINCT `channel` FROM `logs` WHERE LEFT(channel, 1) = '#'", function (err, rows, fields) {
+      var results = [];
+
+      for (var i = 0; i < rows.length; i++) {
+          results.push(rows[i].channel);
+      }
+
+      res.send(JSON.stringify(results));
+    });
+  });
+
+  app.listen(webapp_port);
+  console.log("[Notification] ".green + " Web server started on port " + String(webapp_port).bold);
+}
 
 // Fetch all the channels to join
 connection.query("SELECT * FROM `channels` WHERE `active` = 1", function (err, rows, fields) {
