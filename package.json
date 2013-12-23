@@ -1,0 +1,16 @@
+{
+  "name": "Asterix",
+  "version": "0.0.1",
+  "description": "Asterix - The barebones Node.js based IRC bot",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "Shane Curran",
+  "dependencies": {
+    "irc": "~0.3.6",
+    "mysql": "~2.0.0-rc1",
+    "colors": "~0.6.2"
+  }
+}
