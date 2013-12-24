@@ -3,7 +3,7 @@ Asterix
 
 A barebones Node.js-based IRC bot built on [Martyn Smith's node-irc framework](https://github.com/martynsmith/node-irc)
 
-The bot also stores logs, channels and admin data in an SQL data. The SQL dump can be found in ```db.sql```.
+The bot also stores logs, channels and admin data in an SQL database. The SQL dump can be found in ```db.sql```.
 
 Logging can be enabled and disabled by changing the 'login' variable between 1 and 0.
 
